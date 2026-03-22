@@ -40,19 +40,16 @@
   }
   .petal {
     position: absolute;
-    width: 12px;
-    height: 16px;
-    border-radius: 50% 10% 50% 10%;
     opacity: 0;
     animation: fall linear infinite;
   }
-  .petal:nth-child(odd) { background: rgba(229, 96, 126, 0.4); }
-  .petal:nth-child(even) { background: rgba(240, 201, 106, 0.3); }
   @keyframes fall {
-    0%   { opacity: 0; transform: translateY(-20px) rotate(0deg); }
-    10%  { opacity: 0.7; }
-    90%  { opacity: 0.4; }
-    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    0%   { opacity: 0; transform: translateY(0) rotate(0deg) translateX(0px); }
+    10%  { opacity: 1; }
+    30%  { transform: translateY(30vh) rotate(120deg) translateX(20px); }
+    60%  { transform: translateY(60vh) rotate(280deg) translateX(-15px); }
+    90%  { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(105vh) rotate(540deg) translateX(10px); }
   }
 
   /* Paper */
@@ -265,6 +262,230 @@
     .para  { font-size: 15px; }
     .salutation { font-size: 19px; }
   }
+
+  /* ── ENVELOPE SCENE ── */
+  #env-scene {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: #1a0812;
+    transition: opacity 0.7s ease, visibility 0.7s ease;
+  }
+  #env-scene.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .env-wrapper {
+    position: relative;
+    width: 340px; height: 240px;
+    cursor: pointer;
+    filter: drop-shadow(0 20px 60px rgba(181,35,78,0.4));
+  }
+
+  /* Envelope body */
+  .env-body {
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, #f5e6d0 60%, #edd5b8);
+    border-radius: 4px 4px 8px 8px;
+    overflow: hidden;
+  }
+  /* Left and right inner triangles (envelope crease lines) */
+  .env-body::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(135deg, #e2c89a 50%, transparent 50%),
+      linear-gradient(225deg, #e2c89a 50%, transparent 50%);
+    background-size: 50% 100%, 50% 100%;
+    background-position: left, right;
+    background-repeat: no-repeat;
+    opacity: 0.45;
+  }
+  /* Bottom triangle */
+  .env-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 0;
+    border-left: 170px solid transparent;
+    border-right: 170px solid transparent;
+    border-bottom: 130px solid #ddb97a;
+    opacity: 0.55;
+  }
+
+  /* Envelope text */
+  .env-text {
+    position: absolute;
+    top: 72%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Noto Serif Devanagari', serif;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #c0192e;
+    letter-spacing: 0.06em;
+    text-align: center;
+    white-space: nowrap;
+    z-index: 6;
+    text-shadow: 0 1px 4px rgba(192,25,46,0.18), 0 0px 1px rgba(255,255,255,0.5);
+    pointer-events: none;
+  }
+
+  /* Wax seal */
+  .env-seal {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 52px; height: 52px;
+    background: radial-gradient(circle at 38% 38%, #e8607e, #b5234e 60%, #7a1230);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35), inset 0 1px 3px rgba(255,255,255,0.2);
+    z-index: 5;
+    transition: transform 0.3s ease, opacity 0.4s ease;
+  }
+  .env-wrapper.opening .env-seal {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+
+  /* Flap (top triangle, rotates open) */
+  .env-flap {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 0;
+    border-left: 170px solid transparent;
+    border-right: 170px solid transparent;
+    border-top: 130px solid #c9a96e;
+    transform-origin: top center;
+    transform: rotateX(0deg);
+    transition: transform 0.7s cubic-bezier(.4,0,.2,1);
+    z-index: 10;
+    filter: brightness(0.92);
+  }
+  .env-wrapper.opening .env-flap {
+    transform: rotateX(180deg);
+  }
+
+  /* Letter peeking out */
+  .env-letter-peek {
+    position: absolute;
+    left: 20px; right: 20px;
+    bottom: 10px;
+    height: 200px;
+    background: var(--cream);
+    border-radius: 3px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    transform: translateY(0px);
+    transition: transform 0.8s cubic-bezier(.22,.8,.3,1) 0.5s;
+    z-index: 4;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .env-letter-peek::before {
+    content: '❦';
+    font-size: 32px;
+    color: rgba(181,35,78,0.2);
+  }
+  .env-wrapper.opening .env-letter-peek {
+    transform: translateY(-160px);
+  }
+
+  /* Hint text */
+  .env-hint {
+    margin-top: 32px;
+    color: rgba(240,201,106,0.75);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    animation: floatHint 2s ease-in-out infinite;
+    text-align: center;
+  }
+  @keyframes floatHint {
+    0%,100% { transform: translateY(0); opacity: 0.7; }
+    50%      { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* Hover glow on envelope */
+  .env-wrapper:hover { filter: drop-shadow(0 24px 70px rgba(229,96,126,0.6)); }
+
+  /* Letter hidden until envelope opens */
+  #letter-reveal {
+    display: none;
+    width: 100%;
+  }
+  #letter-reveal.visible { display: block; }
+
+  /* ── NAME SCREEN ── */
+  #name-screen {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: #1a0812;
+    transition: opacity 0.7s ease, visibility 0.7s ease;
+  }
+  #name-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .name-card {
+    background: linear-gradient(145deg, rgba(253,246,238,0.07), rgba(181,35,78,0.08));
+    border: 1px solid rgba(201,151,42,0.3);
+    border-radius: 16px;
+    padding: 48px 44px;
+    text-align: center;
+    max-width: 380px;
+    width: 90%;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,151,42,0.1);
+  }
+  .name-card .nc-icon { font-size: 42px; margin-bottom: 16px; animation: pulse 2s ease-in-out infinite; }
+  .name-card .nc-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--gold-light);
+    margin-bottom: 6px;
+  }
+  .name-card .nc-sub {
+    font-size: 13px;
+    color: rgba(240,201,106,0.55);
+    margin-bottom: 28px;
+    letter-spacing: 0.05em;
+  }
+  .name-input {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(201,151,42,0.35);
+    background: rgba(253,246,238,0.07);
+    color: var(--cream);
+    font-family: 'Noto Serif Devanagari', serif;
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    margin-bottom: 18px;
+  }
+  .name-input::placeholder { color: rgba(253,246,238,0.3); }
+  .name-input:focus {
+    border-color: var(--rose-light);
+    box-shadow: 0 0 0 3px rgba(181,35,78,0.15);
+  }
+  .name-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, var(--rose), #8b1a35);
+    color: #fff;
+    font-family: 'Noto Serif Devanagari', serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(181,35,78,0.4);
+  }
+  .name-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(181,35,78,0.5); }
+  .name-btn:active { transform: translateY(0); }
 </style>
 </head>
 <body>
@@ -272,6 +493,31 @@
 <!-- Floating petals -->
 <div class="bg-petals" id="petals"></div>
 
+<!-- ── NAME SCREEN ── -->
+<div id="name-screen">
+  <div class="name-card">
+    <div class="nc-icon">🌹</div>
+    <div class="nc-title">आपका नाम बताइए</div>
+    <div class="nc-sub">यह खत सिर्फ खास लोगों के लिए है ✦</div>
+    <input class="name-input" id="visitor-name" type="text" placeholder="अपना नाम लिखें..." maxlength="50" />
+    <button class="name-btn" onclick="submitName()">आगे बढ़ें ❤️</button>
+  </div>
+</div>
+
+<!-- ── ENVELOPE SCENE ── -->
+<div id="env-scene">
+  <div class="env-wrapper" id="envelope">
+    <div class="env-body">
+      <div class="env-bottom"></div>
+    </div>
+    <div class="env-letter-peek"></div>
+    <div class="env-text">❤️ मेरी प्यारी संजना के लिए ❤️</div>
+    <div class="env-seal">💌</div>
+    <div class="env-flap"></div>
+  </div>
+</div>
+
+<div id="letter-reveal">
 <div class="letter-wrap">
   <div class="paper">
     <div class="border-ornament"></div>
@@ -282,98 +528,162 @@
 
     <!-- Header -->
     <div class="letter-header">
-      <div class="main-title">❦ एक दिल की पुकार ❦</div>
+      <div class="main-title">❦ एक दोस्त की कलम से  संजना के नाम ❦</div>
       <div class="heart-divider">
         <span class="line"></span>
         <span class="heart">♥</span>
         <span class="line r"></span>
       </div>
-      <div class="salutation">मेरी प्रिय जान,</div>
+      <div class="salutation">मेरी सबसे प्यारी दोस्त संजना,</div>
     </div>
 
     <!-- Body -->
     <div class="letter-body">
 
       <p class="para">
-        न जाने किस <span class="highlight">शायर की कलम</span> से तुम्हें लिखा गया है, न जाने किस
-        <span class="gold-word">सुबह की धूप</span> से तुम्हारा चेहरा बना है — पर जब से तुम मेरी
-        ज़िंदगी में आई हो, हर रोज़ नई कविता जन्म लेती है मेरे दिल में।
+        यार, सच में  तू इस दुनिया की <span class="highlight">सबसे अनोखी इंसान</span> है।
+        जितनी बार भी तुझे देखता हूँ, लगता है ऊपरवाले ने बहुत प्यार से बनाया है तुझे।
+        और एक दोस्त होने के नाते मेरा फ़र्ज़ बनता है कि यह बात तुझे बताऊँ! 😄
       </p>
 
       <div class="shayari">
-        तुम्हारी एक झलक में हज़ार रोशनी है,<br>
-        तुम्हारी एक मुस्कान में मेरी ज़िंदगी है।<br>
-        चाँद भी शर्माए जब तुम निहारो आसमाँ,<br>
-        तुम हो — तो हर पल में खुशी है।
-        <small>— तुम्हारे दिल की आवाज़</small>
+        दोस्ती में भी होती है एक रोशनी खास,<br>
+        जो दोस्त हो तू  उसकी है अलग ही बात।<br>
+        तेरी हँसी में है जादू, तेरी बातों में नूर,<br>
+        तू है पास तो लगे  ग़म है हम से दूर।
+        <small> तेरे यार अभिषेक की तरफ से</small>
       </div>
 
       <p class="para">
-        तुम्हारी <span class="highlight">आँखें</span> — जैसे किसी गहरे समंदर में छुपा हुआ सोना।
-        जब तुम मुझे देखती हो, मेरा दिल एक पल के लिए रुक जाता है, फिर धड़कता है —
-        सिर्फ तुम्हारे लिए। उन आँखों में मेरी पूरी दुनिया बसती है।
+        तेरी <span class="highlight">मुस्कान</span>  यार वो मुस्कान! जब तू हँसती है ना,
+        सारा माहौल बदल जाता है। पूरे कमरे में एक अलग ही <span class="gold-word">रौनक</span> आ जाती है।
+        हम सब दोस्त जानते हैं कि अगर संजना हँस दे, तो बुरा से बुरा दिन भी अच्छा लगने लगता है।
       </p>
 
       <p class="para">
-        तुम्हारी <span class="gold-word">मुस्कान</span> वो जादू है जो हर दर्द को भुला देती है।
-        जब तुम हँसती हो, तो लगता है जैसे बसंत आ गया हो, जैसे कोई मीठी धुन बज उठी हो —
-        और मेरा हर ग़म किसी धुएँ की तरह उड़ जाता है।
-      </p>
-
-      <p class="para">
-        तुम्हारे <span class="highlight">बालों की लट</span> जब हवा में उड़ती है, तो लगता है
-        जैसे कोई काली घटा आसमाँ पर छा गई हो। तुम्हारी आवाज़ — वो मीठी,
-        नरम आवाज़ — मेरे कानों में <span class="gold-word">संगीत</span> घोल देती है।
-        तुम्हारा नाम लेते ही होंठों पर मुस्कान आ जाती है।
+        तेरी <span class="gold-word">आँखों में</span> एक चमक है  एक ऐसी चमक जो यह बताती है
+        कि तू अंदर से कितनी अच्छी इंसान है। तेरा दिल भी उतना ही साफ है जितना तेरा चेहरा।
+        और यह बात हर कोई नहीं जानता  पर तेरा <span class="highlight">दोस्त</span> जानता है।
       </p>
 
       <div class="shayari">
-        तुम्हारे होने से मौसम बदलते हैं,<br>
-        तुम्हारे बिना यह दिल नहीं चलते हैं।<br>
-        दुनिया कहती है चाँद है सबसे हसीन —<br>
-        मैं कहता हूँ, चाँद तुमसे सीखते हैं।
-        <small>— सिर्फ तुम्हारे लिए</small>
+        चाँद सा चेहरा, बातें दिल की सच्ची,<br>
+        ऐसी दोस्त मिले  किस्मत है अच्छी।<br>
+        तू है तो हर मुश्किल आसान लगे,<br>
+        संजना तेरी दोस्ती  हीरे सी लागे।
+        <small> दिल से, अभिषेक</small>
       </div>
 
       <p class="para">
-        सच कहता हूँ — इस दुनिया में <span class="highlight">तुमसे खूबसूरत</span> कुछ नहीं।
-        न कोई फूल, न कोई तारा, न कोई नज़ारा। तुम वो दुआ हो जो मेरी ज़िंदगी ने
-        माँगी थी, और ऊपरवाले ने सुन ली। तुम्हें पाकर मैं खुद को <span class="gold-word">दुनिया का सबसे अमीर इंसान</span> मानता हूँ।
+        तू सिर्फ खूबसूरत दिखती नहीं  तू <span class="highlight">खूबसूरत सोचती</span> भी है,
+        खूबसूरत बोलती भी है। तेरी आवाज़ में एक अपनापन है, तेरे शब्दों में एक गर्माहट।
+        यही तो तुझे <span class="gold-word">सबसे अलग</span> बनाता है  बाहर से भी, अंदर से भी।
       </p>
 
       <p class="para">
-        बस एक ही तमन्ना है — कि हर जन्म में तुम्हारे साथ हो, हर साँस में तुम्हारा नाम हो,
-        और हर ख़्वाब में <span class="highlight">तुम्हारी मुस्कान</span> हो। यह दिल कहता है —
-        तुम थी, तुम हो, और तुम ही रहोगी। हमेशा। हर पल। हर जन्म।
+        दोस्त होने पर बहुत गर्व है मुझे, संजना। सच में 
+        तू हर उस इंसान की <span class="highlight">ज़िंदगी को बेहतर</span> बना देती है जो तुझे जानता है।
+        भगवान तुझे हमेशा खुश रखे, तेरी मुस्कान हमेशा बनी रहे।
+        और हाँ  यह दोस्ती <span class="gold-word">हमेशा-हमेशा</span> के लिए है! 🤝
       </p>
 
     </div>
 
     <!-- Footer -->
     <div class="letter-footer">
-      <div class="closing-line">तुम्हारा — हमेशा, हर हाल में,</div>
-      <div class="sign">तुम्हारा दीवाना 💌</div>
-      <div class="sign-sub">सिर्फ तुम्हारे लिए ✦</div>
+      <div class="closing-line">तेरा हमेशा का दोस्त,</div>
+      <div class="sign">अभिषेक 🤝</div>
     </div>
 
     <div class="footer-hearts">♥ ♥ ♥</div>
   </div>
 </div>
 
+</div><!-- /letter-reveal -->
+
 <script>
-  // Spawn floating petals
+  function openEnvelope() {
+    const env = document.getElementById('envelope');
+    if (env.classList.contains('opening')) return;
+    env.classList.add('opening');
+
+    setTimeout(() => {
+      const scene = document.getElementById('env-scene');
+      scene.classList.add('hidden');
+      const reveal = document.getElementById('letter-reveal');
+      reveal.classList.add('visible');
+    }, 1400);
+  }
+
+  // ── Name Screen ──
+  document.getElementById('visitor-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitName();
+  });
+
+  function submitName() {
+    const name = document.getElementById('visitor-name').value.trim();
+    if (!name) {
+      document.getElementById('visitor-name').style.borderColor = '#e8607e';
+      document.getElementById('visitor-name').placeholder = 'नाम ज़रूर लिखें 🙏';
+      return;
+    }
+
+    // Send to Formspree with name
+    fetch("https://formspree.io/f/xkoqaklv", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        _subject: `💌 ${name} ने संजना का खत खोला!`,
+        visitor_name: name,
+        time: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+        device: navigator.userAgent.includes("Mobile") ? "📱 Mobile" : "💻 Desktop",
+        browser: navigator.userAgent,
+        referrer: document.referrer || "Direct Link",
+      })
+    });
+
+    // Hide name screen, show envelope
+    document.getElementById('name-screen').classList.add('hidden');
+  }
+
+  // Auto-open after 5 seconds
+  setTimeout(openEnvelope, 5000);
+
+  // Spawn beautiful rose petals
   const container = document.getElementById('petals');
-  for (let i = 0; i < 30; i++) {
+  const petalShapes = [
+    // rose petal SVGs as data URIs
+    `M6,0 C10,-2 16,4 10,10 C4,16 -2,10 0,4 C2,-2 6,0 6,0Z`,
+    `M8,0 C14,0 16,8 10,12 C4,16 0,10 2,4 C4,0 8,0 8,0Z`,
+    `M5,0 C12,-1 14,7 9,11 C3,15 -1,8 1,3 C3,0 5,0 5,0Z`,
+  ];
+  const colors = [
+    'rgba(229,96,126,VAL)',
+    'rgba(181,35,78,VAL)',
+    'rgba(240,120,150,VAL)',
+    'rgba(255,160,180,VAL)',
+    'rgba(200,50,90,VAL)',
+    'rgba(240,201,106,VAL)',
+  ];
+
+  for (let i = 0; i < 55; i++) {
     const p = document.createElement('div');
+    const size = 10 + Math.random() * 18;
+    const opacity = (0.4 + Math.random() * 0.5).toFixed(2);
+    const color = colors[Math.floor(Math.random() * colors.length)].replace('VAL', opacity);
+    const isRound = Math.random() > 0.4;
     p.className = 'petal';
     p.style.cssText = `
-      left: ${Math.random() * 100}%;
-      top: ${Math.random() * 100}%;
-      animation-duration: ${6 + Math.random() * 10}s;
-      animation-delay: ${Math.random() * 8}s;
-      width: ${8 + Math.random() * 10}px;
-      height: ${10 + Math.random() * 14}px;
+      left: ${Math.random() * 110 - 5}%;
+      top: -${size + 10}px;
+      width: ${size}px;
+      height: ${isRound ? size * 1.3 : size}px;
+      background: ${color};
+      border-radius: ${isRound ? '60% 40% 60% 40% / 50% 50% 50% 50%' : '50% 20% 50% 20%'};
+      animation-duration: ${7 + Math.random() * 11}s;
+      animation-delay: ${Math.random() * 12}s;
       transform: rotate(${Math.random() * 360}deg);
+      box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1), inset 1px 1px 3px rgba(255,255,255,0.2);
     `;
     container.appendChild(p);
   }
