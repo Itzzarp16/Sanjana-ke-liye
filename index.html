@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>प्रेम पत्र</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rose: #b5234e;
+    --rose-light: #e8607e;
+    --gold: #c9972a;
+    --gold-light: #f0c96a;
+    --cream: #fdf6ee;
+    --ink: #2a1a1f;
+    --ink-soft: #5c3a44;
+    --petal: #fde8ef;
+  }
+
+  body {
+    background: #1a0812;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    font-family: 'Noto Serif Devanagari', serif;
+    overflow-x: hidden;
+  }
+
+  /* Floating petals background */
+  .bg-petals {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .petal {
+    position: absolute;
+    width: 12px;
+    height: 16px;
+    border-radius: 50% 10% 50% 10%;
+    opacity: 0;
+    animation: fall linear infinite;
+  }
+  .petal:nth-child(odd) { background: rgba(229, 96, 126, 0.4); }
+  .petal:nth-child(even) { background: rgba(240, 201, 106, 0.3); }
+  @keyframes fall {
+    0%   { opacity: 0; transform: translateY(-20px) rotate(0deg); }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.4; }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+  }
+
+  /* Paper */
+  .letter-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    width: 100%;
+    animation: emerge 1.2s cubic-bezier(.22,.8,.3,1) both;
+  }
+  @keyframes emerge {
+    from { opacity: 0; transform: translateY(40px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .paper {
+    background: var(--cream);
+    border-radius: 2px;
+    padding: 60px 64px 56px;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(201,151,42,0.25),
+      0 4px 20px rgba(0,0,0,0.5),
+      0 20px 60px rgba(0,0,0,0.4),
+      inset 0 0 120px rgba(240,201,106,0.07);
+  }
+
+  /* Paper texture lines */
+  .paper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 31px,
+      rgba(181, 35, 78, 0.06) 31px,
+      rgba(181, 35, 78, 0.06) 32px
+    );
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  /* Gold border ornament */
+  .border-ornament {
+    position: absolute;
+    inset: 12px;
+    border: 1px solid rgba(201,151,42,0.35);
+    border-radius: 1px;
+    pointer-events: none;
+  }
+  .border-ornament::before, .border-ornament::after {
+    content: '✦';
+    position: absolute;
+    color: var(--gold);
+    font-size: 11px;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--cream);
+    padding: 0 6px;
+    letter-spacing: 8px;
+  }
+  .border-ornament::after {
+    top: auto;
+    bottom: -8px;
+  }
+
+  /* Corner ornaments */
+  .corner {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    color: var(--gold);
+    font-size: 18px;
+    line-height: 1;
+  }
+  .corner.tl { top: 18px; left: 18px; }
+  .corner.tr { top: 18px; right: 18px; transform: scaleX(-1); }
+  .corner.bl { bottom: 18px; left: 18px; transform: scaleY(-1); }
+  .corner.br { bottom: 18px; right: 18px; transform: scale(-1); }
+
+  /* Header */
+  .letter-header {
+    text-align: center;
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .main-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+  .heart-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 10px 0 18px;
+  }
+  .heart-divider .line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--gold-light)); opacity: 0.5; }
+  .heart-divider .line.r { background: linear-gradient(to left, transparent, var(--gold-light)); }
+  .heart-divider .heart { color: var(--rose); font-size: 20px; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+
+  .salutation {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--rose);
+    margin-bottom: 4px;
+    text-shadow: 0 1px 3px rgba(181,35,78,0.15);
+  }
+
+  /* Body */
+  .letter-body {
+    color: var(--ink);
+    position: relative;
+    z-index: 1;
+  }
+  .para {
+    font-size: 16.5px;
+    line-height: 2;
+    margin-bottom: 22px;
+    color: var(--ink-soft);
+    text-align: justify;
+    font-weight: 400;
+    animation: fadein 0.8s ease both;
+  }
+  .para:nth-child(2) { animation-delay: 0.1s; }
+  .para:nth-child(3) { animation-delay: 0.2s; }
+  .para:nth-child(4) { animation-delay: 0.3s; }
+  .para:nth-child(5) { animation-delay: 0.4s; }
+  .para:nth-child(6) { animation-delay: 0.5s; }
+  @keyframes fadein { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+  .highlight {
+    color: var(--rose);
+    font-weight: 600;
+  }
+  .gold-word {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* Shayari / quote block */
+  .shayari {
+    background: linear-gradient(135deg, rgba(181,35,78,0.06), rgba(201,151,42,0.06));
+    border-left: 3px solid var(--rose-light);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 24px;
+    margin: 28px 0;
+    font-size: 17px;
+    line-height: 2.2;
+    color: var(--rose);
+    font-style: italic;
+    font-weight: 500;
+    text-align: center;
+  }
+  .shayari small {
+    display: block;
+    font-size: 12px;
+    color: var(--gold);
+    font-style: normal;
+    margin-top: 6px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Footer */
+  .letter-footer {
+    margin-top: 36px;
+    text-align: right;
+    position: relative;
+    z-index: 1;
+  }
+  .closing-line {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .sign {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 26px;
+    color: var(--rose);
+    margin-top: 8px;
+  }
+  .sign-sub {
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    margin-top: 2px;
+  }
+
+  .footer-hearts {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 18px;
+    color: var(--rose);
+    letter-spacing: 10px;
+    opacity: 0.6;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  @media (max-width: 600px) {
+    .paper { padding: 40px 28px 40px; }
+    .para  { font-size: 15px; }
+    .salutation { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating petals -->
+<div class="bg-petals" id="petals"></div>
+
+<div class="letter-wrap">
+  <div class="paper">
+    <div class="border-ornament"></div>
+    <span class="corner tl">❧</span>
+    <span class="corner tr">❧</span>
+    <span class="corner bl">❧</span>
+    <span class="corner br">❧</span>
+
+    <!-- Header -->
+    <div class="letter-header">
+      <div class="main-title">❦ एक दिल की पुकार ❦</div>
+      <div class="heart-divider">
+        <span class="line"></span>
+        <span class="heart">♥</span>
+        <span class="line r"></span>
+      </div>
+      <div class="salutation">मेरी प्रिय जान,</div>
+    </div>
+
+    <!-- Body -->
+    <div class="letter-body">
+
+      <p class="para">
+        न जाने किस <span class="highlight">शायर की कलम</span> से तुम्हें लिखा गया है, न जाने किस
+        <span class="gold-word">सुबह की धूप</span> से तुम्हारा चेहरा बना है — पर जब से तुम मेरी
+        ज़िंदगी में आई हो, हर रोज़ नई कविता जन्म लेती है मेरे दिल में।
+      </p>
+
+      <div class="shayari">
+        तुम्हारी एक झलक में हज़ार रोशनी है,<br>
+        तुम्हारी एक मुस्कान में मेरी ज़िंदगी है।<br>
+        चाँद भी शर्माए जब तुम निहारो आसमाँ,<br>
+        तुम हो — तो हर पल में खुशी है।
+        <small>— तुम्हारे दिल की आवाज़</small>
+      </div>
+
+      <p class="para">
+        तुम्हारी <span class="highlight">आँखें</span> — जैसे किसी गहरे समंदर में छुपा हुआ सोना।
+        जब तुम मुझे देखती हो, मेरा दिल एक पल के लिए रुक जाता है, फिर धड़कता है —
+        सिर्फ तुम्हारे लिए। उन आँखों में मेरी पूरी दुनिया बसती है।
+      </p>
+
+      <p class="para">
+        तुम्हारी <span class="gold-word">मुस्कान</span> वो जादू है जो हर दर्द को भुला देती है।
+        जब तुम हँसती हो, तो लगता है जैसे बसंत आ गया हो, जैसे कोई मीठी धुन बज उठी हो —
+        और मेरा हर ग़म किसी धुएँ की तरह उड़ जाता है।
+      </p>
+
+      <p class="para">
+        तुम्हारे <span class="highlight">बालों की लट</span> जब हवा में उड़ती है, तो लगता है
+        जैसे कोई काली घटा आसमाँ पर छा गई हो। तुम्हारी आवाज़ — वो मीठी,
+        नरम आवाज़ — मेरे कानों में <span class="gold-word">संगीत</span> घोल देती है।
+        तुम्हारा नाम लेते ही होंठों पर मुस्कान आ जाती है।
+      </p>
+
+      <div class="shayari">
+        तुम्हारे होने से मौसम बदलते हैं,<br>
+        तुम्हारे बिना यह दिल नहीं चलते हैं।<br>
+        दुनिया कहती है चाँद है सबसे हसीन —<br>
+        मैं कहता हूँ, चाँद तुमसे सीखते हैं।
+        <small>— सिर्फ तुम्हारे लिए</small>
+      </div>
+
+      <p class="para">
+        सच कहता हूँ — इस दुनिया में <span class="highlight">तुमसे खूबसूरत</span> कुछ नहीं।
+        न कोई फूल, न कोई तारा, न कोई नज़ारा। तुम वो दुआ हो जो मेरी ज़िंदगी ने
+        माँगी थी, और ऊपरवाले ने सुन ली। तुम्हें पाकर मैं खुद को <span class="gold-word">दुनिया का सबसे अमीर इंसान</span> मानता हूँ।
+      </p>
+
+      <p class="para">
+        बस एक ही तमन्ना है — कि हर जन्म में तुम्हारे साथ हो, हर साँस में तुम्हारा नाम हो,
+        और हर ख़्वाब में <span class="highlight">तुम्हारी मुस्कान</span> हो। यह दिल कहता है —
+        तुम थी, तुम हो, और तुम ही रहोगी। हमेशा। हर पल। हर जन्म।
+      </p>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="letter-footer">
+      <div class="closing-line">तुम्हारा — हमेशा, हर हाल में,</div>
+      <div class="sign">तुम्हारा दीवाना 💌</div>
+      <div class="sign-sub">सिर्फ तुम्हारे लिए ✦</div>
+    </div>
+
+    <div class="footer-hearts">♥ ♥ ♥</div>
+  </div>
+</div>
+
+<script>
+  // Spawn floating petals
+  const container = document.getElementById('petals');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: ${Math.random() * 100}%;
+      animation-duration: ${6 + Math.random() * 10}s;
+      animation-delay: ${Math.random() * 8}s;
+      width: ${8 + Math.random() * 10}px;
+      height: ${10 + Math.random() * 14}px;
+      transform: rotate(${Math.random() * 360}deg);
+    `;
+    container.appendChild(p);
+  }
+</script>
+</body>
+</html>
